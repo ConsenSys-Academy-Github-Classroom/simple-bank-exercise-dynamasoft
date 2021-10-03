@@ -24,14 +24,17 @@ contract("SimpleBank", function (accounts) {
     assert.equal(await web3.eth.getBalance(alice), eth100.toString());
   });
 
-  it("is owned by owner", async () => {
+  it("is owned by owner", async () => {   
+
+    var result = await instance.owner.call();      
+
     assert.equal(
       // Hint:
       //   the error `TypeError: Cannot read property 'call' of undefined`
       //   will be fixed by setting the correct visibility specifier. See
       //   the following two links
       //   1: https://docs.soliditylang.org/en/v0.8.5/cheatsheet.html?highlight=visibility#function-visibility-specifiers
-      //   2: https://docs.soliditylang.org/en/v0.8.5/contracts.html#getter-functions
+      //   2: https://docs.soliditylang.org/en/v0.8.5/contracts.html#getter-functions      
       await instance.owner.call(),
       contractOwner,
       "owner is not correct",
@@ -71,11 +74,11 @@ contract("SimpleBank", function (accounts) {
   });
 
   it("should log a deposit event when a deposit is made", async () => {
+
     await instance.enroll({ from: alice });
     const result = await instance.deposit({ from: alice, value: deposit });
 
-    const expectedEventResult = { accountAddress: alice, amount: deposit };
-
+    const expectedEventResult = { accountAddress: alice, amount: deposit };    
     const logAccountAddress = result.logs[0].args.accountAddress;
     const logDepositAmount = result.logs[0].args.amount.toNumber();
 
@@ -94,9 +97,13 @@ contract("SimpleBank", function (accounts) {
 
   it("should withdraw correct amount", async () => {
     const initialAmount = 0;
+    
     await instance.enroll({ from: alice });
-    await instance.deposit({ from: alice, value: deposit });
+    
+    await instance.deposit({ from: alice, value: deposit });    
+
     await instance.withdraw(deposit, { from: alice });
+
     const balance = await instance.getBalance.call({ from: alice });
 
     assert.equal(
